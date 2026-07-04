@@ -1,25 +1,14 @@
 import expressAsyncHandler from "express-async-handler";
-import TanantModel from "./tanant.model.js";
+import TenantModel from "./tenant.model.js";
 import UserModel from "../users/user.model.js";
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
-export const createTanant = async (req, res) => {
+export const createTenant = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-  //   const { name, email, password, phone, address } = req.body;
-  //   const tanant = await TanantModel.create(req.body);
-  //   if (tanant) {
-  //     await UserModel.create({
-  //       name,
-  //       email,
-  //       password,
-  //       role: "admin",
-  //       tanantId: tanant._id,
-  //     });
-  //   }
-  //   res.status(201).json(tanant);
   try {
-    const tanant = await TanantModel.create(
+    const tenant = await TenantModel.create(
       [
         {
           name: req.body.name,
@@ -31,21 +20,25 @@ export const createTanant = async (req, res) => {
       { session },
     );
 
+    const hashPassword = await bcrypt.hash(
+      req.body.password,
+      parseInt(process.env.BCRYPT_SALT_ROUNDS),
+    );
     await UserModel.create(
       [
         {
           name: req.body.name,
           email: req.body.email,
-          password: req.body.password,
-          role: "admin",
-          tanantId: tanant[0]._id,
+          password: hashPassword,
+          role: "Owner",
+          tenantId: tenant[0]._id,
         },
       ],
       { session },
     );
 
     await session.commitTransaction();
-    res.status(201).json(tanant);
+    res.status(201).json(tenant);
   } catch (error) {
     await session.abortTransaction();
     throw error;
@@ -53,5 +46,3 @@ export const createTanant = async (req, res) => {
     session.endSession();
   }
 };
-
-

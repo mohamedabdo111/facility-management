@@ -1,11 +1,61 @@
-import asyncHandler from 'express-async-handler';
-import UserModel from './user.model.js';
+import asyncHandler from "express-async-handler";
+import UserModel from "./user.model.js";
 
 const createUser = asyncHandler(async (req, res) => {
-    console.log(req.body);
-    const { name, email, password, role } = req.body;
-    const user = await UserModel.create(req.body);
-    res.status(201).json(user);
+  const { name, email, password, role } = req.body;
+  const user = await UserModel.create(req.body);
+  res.status(201).json(user);
 });
 
-export default createUser;
+const getUsers = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  const total = await UserModel.countDocuments({ tenantId: req.user.tenantId });
+  const users = await UserModel.find({ tenantId: req.user.tenantId })
+    .skip(skip)
+    .limit(limit);
+
+  const pagination = {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+    hasNextPage: page < Math.ceil(total / limit),
+    hasPreviousPage: page > 1,
+  };
+  res.status(200).json({
+    message: "Users fetched successfully",
+    success: true,
+    data: users,
+    pagination,
+  });
+});
+
+const getUserById = asyncHandler(async (req, res) => {
+  const user = await UserModel.findById(req.params.id);
+  res.status(200).json(user);
+});
+
+const updateUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (req.body.password) {
+    req.body.password = undefined;
+  }
+  const user = await UserModel.findByIdAndUpdate(id, req.body, { new: true });
+  res.status(200).json({
+    message: "User updated successfully",
+    success: true,
+    data: user,
+  });
+});
+
+const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  await UserModel.findByIdAndDelete(id);
+  res.status(200).json({
+    message: "User deleted successfully",
+    success: true,
+  });
+});
+export { createUser, getUsers, getUserById, updateUser, deleteUser };
