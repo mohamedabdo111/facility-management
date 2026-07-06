@@ -2,7 +2,10 @@ import asyncHandler from "express-async-handler";
 import UserModel from "./user.model.js";
 
 const createUser = asyncHandler(async (req, res) => {
-  const user = await UserModel.create({...req.body, tenantId: req.user.tenantId});
+  const user = await UserModel.create({
+    ...req.body,
+    tenantId: req.user.tenantId,
+  });
   res.status(201).json({
     message: "User created successfully",
     success: true,
@@ -36,7 +39,16 @@ const getUsers = asyncHandler(async (req, res) => {
 });
 
 const getUserById = asyncHandler(async (req, res) => {
-  const user = await UserModel.findById(req.params.id);
+  const user = await UserModel.findOne({
+    _id: req.params.id,
+    tenantId: req.user.tenantId,
+  });
+  // if (!user) {
+  //   return res.status(404).json({
+  //     message: "User not found",
+  //     success: false,
+  //   });
+  // }
   res.status(200).json({
     message: "User fetched successfully",
     success: true,
@@ -54,12 +66,42 @@ export const getMe = asyncHandler(async (req, res) => {
   });
 });
 
+export const updateMe = asyncHandler(async (req, res) => {
+  const { name, email } = req.body;
+
+  const user = await UserModel.findOneAndUpdate(
+    { _id: req.user._id, tenantId: req.user.tenantId },
+    { name, email },
+    { new: true },
+  );
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
+      success: false,
+    });
+  }
+  res.status(200).json({
+    message: "User updated successfully",
+    success: true,
+    data: user,
+  });
+});
+
 const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  if (req.body.password) {
-    req.body.password = undefined;
+  const { name, email, role } = req.body;
+
+  const user = await UserModel.findOneAndUpdate(
+    { _id: id, tenantId: req.user.tenantId },
+    { name, email, role },
+    { new: true },
+  );
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
+      success: false,
+    });
   }
-  const user = await UserModel.findByIdAndUpdate(id, req.body, { new: true });
   res.status(200).json({
     message: "User updated successfully",
     success: true,
