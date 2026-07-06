@@ -46,3 +46,29 @@ export const createTenant = async (req, res) => {
     session.endSession();
   }
 };
+
+
+export const getUserTenant = expressAsyncHandler(async (req, res) => {
+  const UserTenant = await UserModel.findOne({_id: req.user._id}).select("tenantId").populate("tenantId");
+
+  if (!UserTenant) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  res.status(200).json(UserTenant);
+});
+
+export const getAllUsersOfTenant = expressAsyncHandler(async (req ,res ) => {
+  const {tenantId} = req.user
+
+  const users = await UserModel.find({tenantId: tenantId});
+
+  if (!users) {
+    return res.status(404).json({ message: "Users not found" });
+  }
+
+  res.status(200).json({
+    message: "Users fetched successfully",
+    data: users,
+  });
+})

@@ -2,9 +2,12 @@ import asyncHandler from "express-async-handler";
 import UserModel from "./user.model.js";
 
 const createUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
-  const user = await UserModel.create(req.body);
-  res.status(201).json(user);
+  const user = await UserModel.create({...req.body, tenantId: req.user.tenantId});
+  res.status(201).json({
+    message: "User created successfully",
+    success: true,
+    data: user,
+  });
 });
 
 const getUsers = asyncHandler(async (req, res) => {
@@ -34,7 +37,21 @@ const getUsers = asyncHandler(async (req, res) => {
 
 const getUserById = asyncHandler(async (req, res) => {
   const user = await UserModel.findById(req.params.id);
-  res.status(200).json(user);
+  res.status(200).json({
+    message: "User fetched successfully",
+    success: true,
+    data: user,
+  });
+});
+
+export const getMe = asyncHandler(async (req, res) => {
+  console.log(req.user._id);
+  const user = await UserModel.findById(req.user._id.toString());
+  res.status(200).json({
+    message: "User fetched successfully",
+    success: true,
+    data: user,
+  });
 });
 
 const updateUser = asyncHandler(async (req, res) => {

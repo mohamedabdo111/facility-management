@@ -5,17 +5,16 @@ import {
   getUserById,
   getUsers,
   updateUser,
+  getMe,
 } from "./user.service.js";
 import protectedRoutes from "../../middleware/protectedRoutes.js";
 import { allowTo } from "../../middleware/allowTo.js";
 
 const router = express.Router();
+router.use(protectedRoutes, allowTo("Owner", "Admin"));
+router.route("/").post(createUser).get(getUsers);
 
-router
-  .route("/")
-  .post(createUser)
-  .get(protectedRoutes, allowTo("Owner", "Admin"), getUsers);
+router.route("/getme").get(getMe);
 
 router.route("/:id").get(getUserById).put(updateUser).delete(deleteUser);
-
 export default router;
