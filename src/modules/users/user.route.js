@@ -12,13 +12,13 @@ import protectedRoutes from "../../middleware/protectedRoutes.js";
 import { allowTo } from "../../middleware/allowTo.js";
 
 const router = express.Router();
-router.use(protectedRoutes, allowTo("Owner", "Admin"));
-router.route("/").post(createUser).get(getUsers);
+router.use(protectedRoutes);
+router.route("/").post( allowTo("Owner", "Admin"), createUser).get( allowTo("Owner", "Admin"), getUsers);
 
 router
   .route("/me")
-  .get(getMe)
-  .put(allowTo("Owner", "Admin", "Technician"), updateMe);
+  .get( getMe)
+  .put( updateMe);
 
-router.route("/:id").get(getUserById).put(updateUser).delete(deleteUser);
+router.route("/:id").get( getUserById).put( allowTo("Owner", "Admin"), updateUser).delete( allowTo("Owner", "Admin"), deleteUser);
 export default router;

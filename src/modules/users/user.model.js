@@ -29,9 +29,23 @@ const UserSchema = new schema(
       type: String,
       required: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );
+
+// mogoose middleware to filter out deleted users
+UserSchema.pre("/^find/", function(next) {
+  this.where({ isDeleted: false, deletedAt: null });
+  next();
+});
 
 const UserModel = model("User", UserSchema);
 

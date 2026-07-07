@@ -1,16 +1,21 @@
 import asyncHandler from "express-async-handler";
 import UserModel from "./user.model.js";
+import bcrypt from "bcrypt";
 
 const createUser = asyncHandler(async (req, res) => {
+  const { name, email, password, role } = req.body;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
   const user = await UserModel.create({
-    ...req.body,
+    name,
+    email,
+    password: hashedPassword,
+    role,
     tenantId: req.user.tenantId,
   });
-  res.status(201).json({
-    message: "User created successfully",
-    success: true,
-    data: user,
-  });
+  res
+    .status(201)
+    .json({ message: "User created successfully", success: true, data: user });
 });
 
 const getUsers = asyncHandler(async (req, res) => {
@@ -111,7 +116,11 @@ const updateUser = asyncHandler(async (req, res) => {
 
 const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  await UserModel.findByIdAndDelete(id);
+  await UserModel.findByIdAndUpdate(
+    id,
+    { isDeleted: true, deletedAt: new Date() },
+    { new: true },
+  );
   res.status(200).json({
     message: "User deleted successfully",
     success: true,
