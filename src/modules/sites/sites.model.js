@@ -14,7 +14,7 @@ const SiteSchema = new schema(
     },
     code: {
       type: String,
-      required: true,
+      required: [true, "Code is required"],
     },
     tenantId: {
       type: schema.Types.ObjectId,
@@ -60,6 +60,10 @@ const SiteSchema = new schema(
   },
   { timestamps: true },
 );
+
+// SiteSchema.pre(/^find/, function () {
+//   this.where({ isDeleted: false, deletedAt: null });
+// });
 
 const SiteModel = model("Sites", SiteSchema);
 

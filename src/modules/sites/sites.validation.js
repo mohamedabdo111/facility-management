@@ -1,4 +1,4 @@
-import { check } from "express-validator";
+import { check, param } from "express-validator";
 import { validationMiddleWare } from "../../middleware/validation.js";
 import SiteModel from "./sites.model.js";
 
@@ -14,6 +14,7 @@ export const createSiteValidation = [
     check("description").notEmpty().withMessage("Description is required"),
     check("email").notEmpty().withMessage("Email is required"),
     check("phone").notEmpty().withMessage("Phone is required"),
+    check("code").notEmpty().withMessage("Code is required"),
     check("address").notEmpty().withMessage("Address is required"),
     check("address.city").notEmpty().withMessage("City is required"),
     check("address.state").notEmpty().withMessage("State is required"),
@@ -27,17 +28,6 @@ export const createSiteValidation = [
 ]
 
 export const updateSiteValidation = [
-    check("name").notEmpty().withMessage("Name is required"),
-    check("description").notEmpty().withMessage("Description is required"),
-    check("email").notEmpty().withMessage("Email is required"),
-    check("phone").notEmpty().withMessage("Phone is required"),
-    check("address").notEmpty().withMessage("Address is required"),
-    check("address.city").notEmpty().withMessage("City is required"),
-    check("address.state").notEmpty().withMessage("State is required"),
-    check("address.country").notEmpty().withMessage("Country is required"),
-    check("address.postalCode").notEmpty().withMessage("Postal code is required"),
-    check("address.street").notEmpty().withMessage("Street is required"),
-    check("address.coordinates.latitude").notEmpty().withMessage("Latitude is required"),
-    check("address.coordinates.longitude").notEmpty().withMessage("Longitude is required"),
+    param("id").notEmpty().withMessage("Site ID is required").isMongoId().withMessage("Invalid site ID"),
     validationMiddleWare,
 ]
