@@ -8,9 +8,13 @@ import {
   deleteBuilding,
   getBuildingById,
 } from "./building.service.js";
-import { createBuildingValidation, checkBuildingIdValidation, checkSiteIdValidation } from "./building.validation.js";
+import {
+  createBuildingValidation,
+  checkBuildingIdValidation,
+  checkSiteIdValidation,
+} from "./building.validation.js";
 
-const router = Router({mergeParams: true});
+const router = Router({ mergeParams: true });
 
 router
   .route("/")
@@ -20,12 +24,31 @@ router
     createBuildingValidation,
     createBuilding,
   )
-  .get(protectedRoutes, allowTo("Admin", "Owner", "Manager" , "Technician"), checkSiteIdValidation, getBuildings)
+  .get(
+    protectedRoutes,
+    allowTo("Admin", "Owner", "Manager", "Technician"),
+    checkSiteIdValidation,
+    getBuildings,
+  );
 
 router
   .route("/:id")
-  .get(protectedRoutes, allowTo("Admin", "Owner", "Manager" , "Technician"),checkBuildingIdValidation, getBuildingById)
-  .delete(protectedRoutes, allowTo("Admin", "Owner", "Manager"),checkBuildingIdValidation, deleteBuilding)
-  .put(protectedRoutes, allowTo("Admin", "Owner", "Manager"),checkBuildingIdValidation ,updateBuilding);
+  .get(
+    protectedRoutes,
+    allowTo("Admin", "Owner", "Manager", "Technician"),
+    getBuildingById,
+  )
+  .delete(
+    protectedRoutes,
+    allowTo("Admin", "Owner", "Manager"),
+    checkBuildingIdValidation,
+    deleteBuilding,
+  )
+  .put(
+    protectedRoutes,
+    allowTo("Admin", "Owner", "Manager"),
+    checkBuildingIdValidation,
+    updateBuilding,
+  );
 
 export default router;

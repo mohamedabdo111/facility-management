@@ -1,21 +1,25 @@
 // http application
-
+// import ApiError from "./utils/ApiErrors.js";
 import express from "express";
 import userRouter from "./modules/users/user.route.js";
 import tenantRouter from "./modules/tenants/tenant.route.js";
 import authRouter from "./modules/auth/auth.route.js";
 import siteRouter from "./modules/sites/sites.route.js";
 import buildingRouter from "./modules/sites/Buildings/building.route.js";
+import { errorMiddleware } from "./middleware/error.middleware.js";
 // import registerRoutes from './routes/index';
 const app = express();
-
+// app.use(ApiError);
 app.use(express.json());
+
 // app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tenants", tenantRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/sites", siteRouter);
 app.use("/api/v1/:siteId/buildings", buildingRouter);
+
+app.use(errorMiddleware);
 // registerRoutes(app);
 
 export default app;
