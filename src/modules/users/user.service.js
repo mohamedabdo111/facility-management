@@ -1,6 +1,11 @@
 import asyncHandler from "express-async-handler";
 import UserModel from "./user.model.js";
 import bcrypt from "bcrypt";
+import {
+  getAllMethod,
+  getOneMethod,
+  deleteMethod,
+} from "../../handler/handlerFactory.js";
 
 const createUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -18,48 +23,9 @@ const createUser = asyncHandler(async (req, res) => {
     .json({ message: "User created successfully", success: true, data: user });
 });
 
-const getUsers = asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-  const total = await UserModel.countDocuments({ tenantId: req.user.tenantId });
-  const users = await UserModel.find({ tenantId: req.user.tenantId })
-    .skip(skip)
-    .limit(limit);
+const getUsers = getAllMethod(UserModel, "users");
 
-  const pagination = {
-    page,
-    limit,
-    total,
-    totalPages: Math.ceil(total / limit),
-    hasNextPage: page < Math.ceil(total / limit),
-    hasPreviousPage: page > 1,
-  };
-  res.status(200).json({
-    message: "Users fetched successfully",
-    success: true,
-    data: users,
-    pagination,
-  });
-});
-
-const getUserById = asyncHandler(async (req, res) => {
-  const user = await UserModel.findOne({
-    _id: req.params.id,
-    tenantId: req.user.tenantId,
-  });
-  // if (!user) {
-  //   return res.status(404).json({
-  //     message: "User not found",
-  //     success: false,
-  //   });
-  // }
-  res.status(200).json({
-    message: "User fetched successfully",
-    success: true,
-    data: user,
-  });
-});
+const getUserById = getOneMethod(UserModel, "user");
 
 export const getMe = asyncHandler(async (req, res) => {
   console.log(req.user._id);
@@ -114,16 +80,5 @@ const updateUser = asyncHandler(async (req, res) => {
   });
 });
 
-const deleteUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  await UserModel.findByIdAndUpdate(
-    id,
-    { isDeleted: true, deletedAt: new Date() },
-    { new: true },
-  );
-  res.status(200).json({
-    message: "User deleted successfully",
-    success: true,
-  });
-});
+const deleteUser = deleteMethod(UserModel, "user");
 export { createUser, getUsers, getUserById, updateUser, deleteUser };

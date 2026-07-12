@@ -41,12 +41,6 @@ const UserSchema = new schema(
   { timestamps: true },
 );
 
-// mogoose middleware to filter out deleted users
-UserSchema.pre("/^find/", function(next) {
-  this.where({ isDeleted: false, deletedAt: null });
-  next();
-});
-
 const UserModel = model("User", UserSchema);
 
 export default UserModel;
