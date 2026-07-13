@@ -1,18 +1,18 @@
 import { Router } from "express";
-import { createBuilding } from "./building.service.js";
+import { createSpace } from "./space.service.js";
 import protectedRoutes from "../../../middleware/protectedRoutes.js";
 import { allowTo } from "../../../middleware/allowTo.js";
 import {
-  getBuildings,
-  updateBuilding,
-  deleteBuilding,
-  getBuildingById,
-} from "./building.service.js";
+  getSpaces,
+  updateSpace,
+  deleteSpace,
+  getSpaceById,
+} from "./space.service.js";
 import {
-  createBuildingValidation,
-  checkBuildingIdValidation,
+  createSpaceValidation,
+  checkSpaceIdValidation,
   checkSiteIdValidation,
-} from "./building.validation.js";
+} from "./space.validation.js";
 
 const router = Router({ mergeParams: true });
 
@@ -21,14 +21,14 @@ router
   .post(
     protectedRoutes,
     allowTo("Admin", "Owner", "Manager"),
-    createBuildingValidation,
-    createBuilding,
+    createSpaceValidation,
+    createSpace,
   )
   .get(
     protectedRoutes,
     allowTo("Admin", "Owner", "Manager", "Technician"),
     checkSiteIdValidation,
-    getBuildings,
+    getSpaces,
   );
 
 router
@@ -36,19 +36,19 @@ router
   .get(
     protectedRoutes,
     allowTo("Admin", "Owner", "Manager", "Technician"),
-    getBuildingById,
+    getSpaceById,
   )
   .delete(
     protectedRoutes,
     allowTo("Admin", "Owner", "Manager"),
-    checkBuildingIdValidation,
-    deleteBuilding,
+    checkSpaceIdValidation,
+    deleteSpace,
   )
   .put(
     protectedRoutes,
     allowTo("Admin", "Owner", "Manager"),
-    checkBuildingIdValidation,
-    updateBuilding,
+    checkSpaceIdValidation,
+    updateSpace,
   );
 
 export default router;

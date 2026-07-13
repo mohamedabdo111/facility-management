@@ -1,28 +1,43 @@
 import { validationMiddleWare } from "../../../middleware/validation.js";
 import { param, check } from "express-validator";
 import SiteModel from "../sites.model.js";
-import BuildingModel from "./building.modal.js";
+import SpaceModel from "./space.model.js";
+import ApiError from "../../../utils/ApiErrors.js";
 
-export const createBuildingValidation = [
+export const createSpaceValidation = [
   param("siteId")
     .notEmpty()
     .withMessage("Site ID is required")
     .isMongoId()
     .withMessage("Invalid site ID")
-    .custom((value , {req}) => {
+    .custom((value, { req }) => {
       return SiteModel.findOne({
         _id: value,
         tenantId: req.user.tenantId,
-        
       }).then((site) => {
         if (!site) {
-          return Promise.reject("Site not found");
+          throw new Error("Site not found");
         }
       });
     }),
   check("name").notEmpty().withMessage("Name is required"),
   check("description").notEmpty().withMessage("Description is required"),
-  check("code").notEmpty().withMessage("Code is required"),
+  check("code")
+    .notEmpty()
+    .withMessage("Code is required")
+    .custom(async (values, { req }) => {
+      const space = await SpaceModel.findOne({
+        tenantId: req.user.tenantId,
+        siteId: req.params.siteId,
+        code: values,
+      });
+
+      if (space) {
+        throw new Error("Code already exists");
+      }
+
+      return true;
+    }),
 
   validationMiddleWare,
 ];
@@ -43,23 +58,23 @@ export const checkSiteIdValidation = [
         }
       });
     }),
-    
+
   validationMiddleWare,
 ];
 
-export const checkBuildingIdValidation = [
+export const checkSpaceIdValidation = [
   param("id")
     .notEmpty()
-    .withMessage("Building ID is required")
+    .withMessage("Space ID is required")
     .isMongoId()
-    .withMessage("Invalid building ID")
+    .withMessage("Invalid space ID")
     .custom((value, { req }) => {
-      return BuildingModel.findOne({
+      return SpaceModel.findOne({
         _id: value,
         tenantId: req.user.tenantId,
-      }).then((building) => {
-        if (!building) {
-          return Promise.reject("Building not found");
+      }).then((space) => {
+        if (!space) {
+          return Promise.reject("Space not found");
         }
       });
     }),

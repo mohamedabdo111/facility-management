@@ -8,8 +8,9 @@ export const getAllMethod = (Model, resource) =>
 
     const totalDocs = await Model.countDocuments({
       tenantId: req.user.tenantId,
-      //   isDeleted: false,
+      isDeleted: false,
     });
+
     const features = new APIFeatures(
       Model.find({ tenantId: req.user.tenantId, isDeleted: false }),
       req.query,
@@ -21,7 +22,6 @@ export const getAllMethod = (Model, resource) =>
     // execute query
     const { query, pagination } = features;
     const docs = await query;
-    // console.log(docs);
 
     res.status(200).json({
       success: true,
@@ -71,3 +71,33 @@ export const deleteMethod = (Model, resource) =>
       success: true,
     });
   });
+
+export const updateMethod = (Model, resource) =>
+  expressAsyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const doc = await Model.findOneAndUpdate(
+      { _id: id, tenantId: req.user.tenantId },
+      req.body,
+      { new: true },
+    );
+    if (!doc) {
+      throw new ApiError(404, `${resource} not found`);
+    }
+    res.status(200).json({
+      message: `${resource} updated successfully`,
+      success: true,
+      data: doc,
+    });
+  });
+
+export const createMethod = (Model, resource) => {
+  expressAsyncHandler(async (req, res) => {
+    const doc = await Model.create(req.body);
+    res.status(201).json({
+      message: `${resource} created successfully`,
+      success: true,
+      data: doc,
+    });
+  });
+};

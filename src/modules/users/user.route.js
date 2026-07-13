@@ -10,15 +10,27 @@ import {
 } from "./user.service.js";
 import protectedRoutes from "../../middleware/protectedRoutes.js";
 import { allowTo } from "../../middleware/allowTo.js";
+import {
+  createUserValidation,
+  updateUserValidation,
+  updateMeValidation,
+  checkUserIdValidation,
+} from "./user.validation.js";
 
 const router = express.Router();
 router.use(protectedRoutes);
-router.route("/").post( allowTo("Owner", "Admin"), createUser).get( allowTo("Owner", "Admin"), getUsers);
 
 router
-  .route("/me")
-  .get( getMe)
-  .put( updateMe);
+  .route("/")
+  .post(allowTo("Owner", "Admin"), createUserValidation, createUser)
+  .get(allowTo("Owner", "Admin"), getUsers);
 
-router.route("/:id").get( getUserById).put( allowTo("Owner", "Admin"), updateUser).delete( allowTo("Owner", "Admin"), deleteUser);
+router.route("/me").get(getMe).put(updateMeValidation, updateMe);
+
+router
+  .route("/:id")
+  .get(checkUserIdValidation, getUserById)
+  .put(allowTo("Owner", "Admin"), updateUserValidation, updateUser)
+  .delete(allowTo("Owner", "Admin"), checkUserIdValidation, deleteUser);
+
 export default router;
