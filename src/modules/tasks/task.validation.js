@@ -1,4 +1,4 @@
-import { check, param } from "express-validator";
+import { body, check, param } from "express-validator";
 import { validationMiddleWare } from "../../middleware/validation.js";
 import SiteModel from "../sites/sites.model.js";
 import SpaceModel from "../sites/spaces/space.model.js";
@@ -83,8 +83,9 @@ export const createTaskValidation = [
         }
       });
     }),
-  check("priority")
-    .optional()
+  // body() only — check() also reads the HTTP Priority header (u=1, i)
+  body("priority")
+    .optional({ values: "falsy" })
     .isIn(["low", "medium", "high"])
     .withMessage("Priority must be low, medium or high"),
   check("status")
