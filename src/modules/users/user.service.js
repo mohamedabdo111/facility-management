@@ -8,7 +8,7 @@ import {
 } from "../../handler/handlerFactory.js";
 
 const createUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, image } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await UserModel.create({
@@ -16,6 +16,7 @@ const createUser = asyncHandler(async (req, res) => {
     email,
     password: hashedPassword,
     role,
+    image,
     tenantId: req.user.tenantId,
   });
   res

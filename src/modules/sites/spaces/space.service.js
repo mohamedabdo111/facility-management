@@ -2,6 +2,8 @@ import ApiError from "../../../utils/ApiErrors.js";
 import SpaceModel from "./space.model.js";
 
 export const createSpace = async (req, res) => {
+
+ 
   const { name, description, code , spaceType , parentSpaceId } = req.body;
   const space = await SpaceModel.create({
     name,
@@ -10,6 +12,7 @@ export const createSpace = async (req, res) => {
     spaceType,
     parentSpaceId,
     tenantId: req.user.tenantId,
+    image: req.body.image,
     siteId: req.params.siteId,
   });
   return res.status(201).json({

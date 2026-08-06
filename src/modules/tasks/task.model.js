@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+const opts = { toJSON: { virtuals: true } };
 const Schema = mongoose.Schema;
 const Model = mongoose.model;
 
@@ -37,7 +38,6 @@ const TaskSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Category",
       required: true,
-      
     },
     priority: {
       type: String,
@@ -91,13 +91,20 @@ const TaskSchema = new Schema(
       },
     ],
   },
-  { timestamps: true },
+  { timestamps: true, ...opts },
 );
 
+TaskSchema.virtual("imagesUrls").get(function () {
+  if (!this.images || this.images.length === 0) {
+    return [];
+  }
+  return this.images.map(
+    (image) => `${process.env.APP_URL}/uploads/${image}`,
+  );
+});
 
 TaskSchema.pre("findOneAndUpdate", async function () {
   delete this.isDeleted;
-  
 });
 
 const TaskModel = Model("Task", TaskSchema);

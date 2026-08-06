@@ -8,12 +8,20 @@ import {
   updateTaskValidation,
   checkTaskIdValidation,
 } from "./task.validation.js";
+import { upload, imageProcessor } from "./task.upload.js";
 
 const router = Router();
 
 router
   .route("/")
-  .post(protectedRoutes, allowTo("Owner", "Admin"), createTaskValidation, createTask)
+  .post(
+    protectedRoutes,
+    allowTo("Owner", "Admin"),
+    upload.array("images"),
+    imageProcessor,
+    createTaskValidation,
+    createTask,
+  )
   .get(protectedRoutes, getAllTasks);
 
 router

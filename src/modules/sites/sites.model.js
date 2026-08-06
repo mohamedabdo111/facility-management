@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+const opts = { toJSON: { virtuals: true } };
 const schema = mongoose.Schema;
 const model = mongoose.model;
 
@@ -49,6 +50,11 @@ const SiteSchema = new schema(
       },
     },
 
+    image: {
+      type: String,
+      default: null,
+    },
+
     isDeleted: {
       type: Boolean,
       default: false,
@@ -58,8 +64,15 @@ const SiteSchema = new schema(
       default: null,
     },
   },
-  { timestamps: true },
+  { timestamps: true, ...opts },
 );
+
+SiteSchema.virtual("imageUrl").get(function () {
+  if (!this.image) {
+    return null;
+  }
+  return `${process.env.APP_URL}/uploads/${this.image}`;
+});
 
 // SiteSchema.pre(/^find/, function () {
 //   this.where({ isDeleted: false, deletedAt: null });

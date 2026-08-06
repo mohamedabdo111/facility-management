@@ -13,6 +13,7 @@ import {
   checkSpaceIdValidation,
   checkSiteIdValidation,
 } from "./space.validation.js";
+import { upload, imageProcessor } from "./space.upload.js";
 
 const router = Router({ mergeParams: true });
 
@@ -21,6 +22,8 @@ router
   .post(
     protectedRoutes,
     allowTo("Admin", "Owner", "Manager"),
+    upload.single('image'),
+    imageProcessor,
     createSpaceValidation,
     createSpace,
   )

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+const opts = { toJSON: { virtuals: true } };
 const schema = mongoose.Schema;
 const model = mongoose.model;
 
@@ -29,6 +30,10 @@ const UserSchema = new schema(
       type: String,
       required: true,
     },
+    image: {
+      type: String,
+      default: null,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -38,8 +43,15 @@ const UserSchema = new schema(
       default: null,
     },
   },
-  { timestamps: true },
+  { timestamps: true, ...opts },
 );
+
+UserSchema.virtual("imageUrl").get(function () {
+  if (!this.image) {
+    return null;
+  }
+  return `${process.env.APP_URL}/uploads/${this.image}`;
+});
 
 const UserModel = model("User", UserSchema);
 

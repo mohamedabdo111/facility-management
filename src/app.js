@@ -9,11 +9,14 @@ import spaceRouter from "./modules/sites/spaces/space.route.js";
 import taskRouter from "./modules/tasks/task.route.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import categoryRouter from "./modules/categories/category.route.js";
-// import registerRoutes from './routes/index';
+import cors from "cors";
 const app = express();
+app.use(cors());
 // app.use(ApiError);
 app.use(express.json());
 
+// to make uploads folder public
+app.use("/uploads" , express.static("uploads"))
 // app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tenants", tenantRouter);

@@ -1,4 +1,6 @@
 export const errorMiddleware = (err, req, res, next) => {
+
+  console.log(err , "errrrrr");
   if (err.name === "TokenExpiredError") {
     err.message = "Invalid token, Please login again";
     err.statusCode = 401;

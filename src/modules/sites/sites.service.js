@@ -5,7 +5,8 @@ import getAllMethod, {
 import SiteModel from "./sites.model.js";
 
 export const createSite = async (req, res) => {
-  const { name, description, email, phone, address, code } = req.body;
+  const { name, description, email, phone, address, code, image } = req.body;
+
   const site = await SiteModel.create({
     name,
     description,
@@ -13,6 +14,7 @@ export const createSite = async (req, res) => {
     phone,
     address,
     code,
+    image,
     tenantId: req.user.tenantId,
   });
   return res.status(201).json({

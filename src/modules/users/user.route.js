@@ -16,13 +16,20 @@ import {
   updateMeValidation,
   checkUserIdValidation,
 } from "./user.validation.js";
+import { upload, imageProcessor } from "./user.upload.js";
 
 const router = express.Router();
 router.use(protectedRoutes);
 
 router
   .route("/")
-  .post(allowTo("Owner", "Admin"), createUserValidation, createUser)
+  .post(
+    allowTo("Owner", "Admin"),
+    upload.single("image"),
+    imageProcessor,
+    createUserValidation,
+    createUser,
+  )
   .get(allowTo("Owner", "Admin"), getUsers);
 
 router.route("/me").get(getMe).put(updateMeValidation, updateMe);

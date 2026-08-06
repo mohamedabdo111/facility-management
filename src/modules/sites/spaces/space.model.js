@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+const opts = { toJSON: { virtuals: true } };
 
 const Schema = mongoose.Schema;
 
@@ -48,8 +49,12 @@ const SpaceSchema = new Schema(
       type: Date,
       default: null,
     },
+    image: {
+      type: String,
+      default: null,
+    },
   },
-  { timestamps: true },
+  { timestamps: true, ...opts },
 );
 
 // mogoose middleware to filter out deleted spaces
@@ -61,6 +66,14 @@ const SpaceSchema = new Schema(
 //   },
 //   { unique: true },
 // );
+
+SpaceSchema.virtual("imageUrl").get(function () {
+  if (!this.image) {
+    return null;
+  }
+  return `${process.env.APP_URL}/uploads/${this.image}`;
+});
+
 SpaceSchema.pre(/^find/, function () {
   this.where({ isDeleted: false, deletedAt: null });
 });
