@@ -1,0 +1,664 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Facility Management API",
+    "description": "Complete API collection for Facility Management.\n\n1. Set `baseUrl` (default: http://localhost:3000)\n2. Run **Auth > Login** — the test script saves `token` automatically\n3. Use other endpoints; Authorization Bearer uses `{{token}}`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "siteId", "value": "" },
+    { "key": "spaceId", "value": "" },
+    { "key": "categoryId", "value": "" },
+    { "key": "taskId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const res = pm.response.json();",
+                  "  const token = res.token || res.data?.token || res.accessToken;",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('token', token);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"owner@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Login and get JWT. Token is saved to collection variable `token`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tenants",
+      "item": [
+        {
+          "name": "Create Tenant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Facilities\",\n  \"email\": \"tenant.owner@example.com\",\n  \"phone\": \"01012345678\",\n  \"address\": \"Cairo, Egypt\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tenants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tenants"]
+            },
+            "description": "Create a new tenant. Requires auth. Roles: admin, user, Owner.\nPhone must be a valid Egyptian mobile (ar-EG)."
+          }
+        },
+        {
+          "name": "Get All Users Of Tenant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tenants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tenants"]
+            },
+            "description": "Get all users belonging to the current tenant."
+          }
+        },
+        {
+          "name": "Get User Tenant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tenants/user-tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tenants", "user-tenant"]
+            },
+            "description": "Get the tenant of the authenticated user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "John Doe", "type": "text" },
+                { "key": "email", "value": "john.doe@example.com", "type": "text" },
+                { "key": "password", "value": "password123", "type": "text" },
+                {
+                  "key": "role",
+                  "value": "Technician",
+                  "type": "text",
+                  "description": "Owner | Admin | Technician | Supervisor"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional profile image"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "description": "Create a user (multipart). Roles: Owner, Admin."
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "description": "List users. Roles: Owner, Admin."
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "me"]
+            },
+            "description": "Get the authenticated user's profile."
+          }
+        },
+        {
+          "name": "Update Me",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"updated.me@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "me"]
+            },
+            "description": "Update the authenticated user's profile."
+          }
+        },
+        {
+          "name": "Get User By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Get a user by MongoDB ObjectId."
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"role\": \"Supervisor\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Update a user. Roles: Owner, Admin. Role values: Owner | Admin | Technician | Supervisor."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Delete a user. Roles: Owner, Admin."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sites",
+      "item": [
+        {
+          "name": "Create Site",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const res = pm.response.json();",
+                  "  const id = res.data?._id || res._id || res.data?.id;",
+                  "  if (id) pm.collectionVariables.set('siteId', id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Main Building", "type": "text" },
+                { "key": "description", "value": "Headquarters facility", "type": "text" },
+                { "key": "email", "value": "site@example.com", "type": "text" },
+                { "key": "phone", "value": "01012345678", "type": "text" },
+                { "key": "code", "value": "SITE-001", "type": "text" },
+                { "key": "address[city]", "value": "Cairo", "type": "text" },
+                { "key": "address[state]", "value": "Cairo", "type": "text" },
+                { "key": "address[country]", "value": "Egypt", "type": "text" },
+                { "key": "address[postalCode]", "value": "11511", "type": "text" },
+                { "key": "address[street]", "value": "123 Nile Street", "type": "text" },
+                { "key": "address[coordinates][latitude]", "value": "30.0444", "type": "text" },
+                { "key": "address[coordinates][longitude]", "value": "31.2357", "type": "text" },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional site image"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sites"]
+            },
+            "description": "Create a site (multipart/form-data). Saves `siteId` on success."
+          }
+        },
+        {
+          "name": "Get All Sites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sites"]
+            },
+            "description": "List all sites for the authenticated tenant."
+          }
+        },
+        {
+          "name": "Get Site By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sites", "{{siteId}}"]
+            },
+            "description": "Get a single site by id."
+          }
+        },
+        {
+          "name": "Update Site",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Building Updated\",\n  \"description\": \"Updated description\",\n  \"email\": \"site.updated@example.com\",\n  \"phone\": \"01098765432\",\n  \"code\": \"SITE-001\",\n  \"address\": {\n    \"city\": \"Giza\",\n    \"state\": \"Giza\",\n    \"country\": \"Egypt\",\n    \"postalCode\": \"12511\",\n    \"street\": \"456 Pyramid Road\",\n    \"coordinates\": {\n      \"latitude\": 29.9792,\n      \"longitude\": 31.1342\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sites", "{{siteId}}"]
+            },
+            "description": "Update a site by id."
+          }
+        },
+        {
+          "name": "Delete Site",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sites", "{{siteId}}"]
+            },
+            "description": "Delete a site by id."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Spaces",
+      "item": [
+        {
+          "name": "Create Space",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const res = pm.response.json();",
+                  "  const id = res.data?._id || res._id || res.data?.id;",
+                  "  if (id) pm.collectionVariables.set('spaceId', id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Conference Room A", "type": "text" },
+                { "key": "description", "value": "First floor meeting room", "type": "text" },
+                { "key": "code", "value": "SPC-001", "type": "text" },
+                {
+                  "key": "spaceType",
+                  "value": "room",
+                  "type": "text",
+                  "description": "room | floor | building | warehouse | area"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional space image"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/{{siteId}}/spaces",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "{{siteId}}", "spaces"]
+            },
+            "description": "Create a space under a site. Roles: Admin, Owner, Manager. Saves `spaceId`."
+          }
+        },
+        {
+          "name": "Get All Spaces",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/{{siteId}}/spaces",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "{{siteId}}", "spaces"]
+            },
+            "description": "List spaces for a site. Roles: Admin, Owner, Manager, Technician."
+          }
+        },
+        {
+          "name": "Get Space By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/{{siteId}}/spaces/{{spaceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "{{siteId}}", "spaces", "{{spaceId}}"]
+            },
+            "description": "Get a space by id. Roles: Admin, Owner, Manager, Technician."
+          }
+        },
+        {
+          "name": "Update Space",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Conference Room A Updated\",\n  \"description\": \"Updated description\",\n  \"code\": \"SPC-001\",\n  \"spaceType\": \"room\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/{{siteId}}/spaces/{{spaceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "{{siteId}}", "spaces", "{{spaceId}}"]
+            },
+            "description": "Update a space. Roles: Admin, Owner, Manager."
+          }
+        },
+        {
+          "name": "Delete Space",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/{{siteId}}/spaces/{{spaceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "{{siteId}}", "spaces", "{{spaceId}}"]
+            },
+            "description": "Delete a space. Roles: Admin, Owner, Manager."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const res = pm.response.json();",
+                  "  const id = res.data?._id || res._id || res.data?.id;",
+                  "  if (id) pm.collectionVariables.set('categoryId', id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"HVAC\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            },
+            "description": "Create a category. Roles: Owner, Admin. Saves `categoryId`."
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            },
+            "description": "List categories. Roles: Owner, Admin."
+          }
+        },
+        {
+          "name": "Get Category By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Get a category by id. Roles: Owner, Admin."
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Electrical\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Update a category. Roles: Owner, Admin."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Create Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const res = pm.response.json();",
+                  "  const id = res.data?._id || res._id || res.data?.id;",
+                  "  if (id) pm.collectionVariables.set('taskId', id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Fix AC unit", "type": "text" },
+                {
+                  "key": "description",
+                  "value": "AC not cooling in conference room",
+                  "type": "text"
+                },
+                { "key": "siteId", "value": "{{siteId}}", "type": "text" },
+                { "key": "spaceId", "value": "{{spaceId}}", "type": "text" },
+                { "key": "category", "value": "{{categoryId}}", "type": "text" },
+                { "key": "createdBy", "value": "{{userId}}", "type": "text" },
+                {
+                  "key": "assignedTo",
+                  "value": "{{userId}}",
+                  "type": "text",
+                  "description": "Optional"
+                },
+                {
+                  "key": "priority",
+                  "value": "high",
+                  "type": "text",
+                  "description": "low | medium | high"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "type": "text",
+                  "description": "pending | in_progress | completed | cancelled"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional — can attach multiple files with key images"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tasks"]
+            },
+            "description": "Create a task (multipart). Roles: Owner, Admin. Saves `taskId`.\nReplace `userId` / `siteId` / `spaceId` / `categoryId` with real ObjectIds."
+          }
+        },
+        {
+          "name": "Get All Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tasks"]
+            },
+            "description": "List all tasks for the authenticated tenant."
+          }
+        },
+        {
+          "name": "Get Task By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tasks", "{{taskId}}"]
+            },
+            "description": "Get a task by id. Roles: Owner, Admin."
+          }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Fix AC unit - updated\",\n  \"description\": \"Replaced filter, still monitoring\",\n  \"priority\": \"medium\",\n  \"status\": \"in_progress\",\n  \"assignedTo\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tasks", "{{taskId}}"]
+            },
+            "description": "Update a task. Roles: Owner, Admin. `isDeleted` and `tenantId` are ignored by the API."
+          }
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tasks", "{{taskId}}"]
+            },
+            "description": "Delete a task. Roles: Owner, Admin."
+          }
+        }
+      ]
+    }
+  ]
+}
