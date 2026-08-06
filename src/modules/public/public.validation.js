@@ -15,12 +15,16 @@ export const publicReportValidation = [
     .withMessage("Category is required")
     .isMongoId()
     .withMessage("Invalid category ID"),
+  // Optional — defaults to medium in the service
   check("priority")
-    .optional()
+    .optional({ values: "falsy" })
     .isIn(["low", "medium", "high"])
     .withMessage("Priority must be low, medium or high"),
-  check("reporterName").optional().isString(),
-  check("reporterContact").optional().isString(),
+  // Optional reporter fields (name / phone aliases supported)
+  check("reporterName").optional({ values: "falsy" }).isString(),
+  check("name").optional({ values: "falsy" }).isString(),
+  check("reporterContact").optional({ values: "falsy" }).isString(),
+  check("phone").optional({ values: "falsy" }).isString(),
   validationMiddleWare,
 ];
 
@@ -31,7 +35,7 @@ export const publicTaskTokenValidation = [
 
 export const publicCompleteTaskValidation = [
   param("publicToken").notEmpty().withMessage("Public task token is required"),
-  check("completionNotes").optional().isString(),
-  check("technicianName").optional().isString(),
+  check("completionNotes").optional({ values: "falsy" }).isString(),
+  check("technicianName").optional({ values: "falsy" }).isString(),
   validationMiddleWare,
 ];

@@ -96,6 +96,8 @@ export const createPublicReport = expressAsyncHandler(async (req, res) => {
     priority,
     reporterName,
     reporterContact,
+    name,
+    phone,
     images,
   } = req.body;
 
@@ -116,10 +118,10 @@ export const createPublicReport = expressAsyncHandler(async (req, res) => {
     tenantId: space.tenantId,
     siteId: space.siteId,
     spaceId: space._id,
-    images: images || [],
+    images: Array.isArray(images) ? images : [],
     source: "public_qr",
-    reporterName: reporterName || null,
-    reporterContact: reporterContact || null,
+    reporterName: reporterName || name || null,
+    reporterContact: reporterContact || phone || null,
     status: "pending",
     createdBy: null,
   });
