@@ -23,10 +23,11 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tenants", tenantRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/sites", siteRouter);
+// Must be before /:siteId/spaces — otherwise "public" is treated as siteId
+app.use("/api/v1/public", publicRouter);
 app.use("/api/v1/:siteId/spaces", spaceRouter);
 app.use("/api/v1/tasks", taskRouter);
 app.use("/api/v1/categories", categoryRouter);
-app.use("/api/v1/public", publicRouter);
 
 app.use(errorMiddleware);
 // registerRoutes(app);
