@@ -85,7 +85,8 @@ SpaceSchema.virtual("imageUrl").get(function () {
 });
 
 SpaceSchema.pre(/^find/, function () {
-  this.where({ isDeleted: false, deletedAt: null });
+  // Treat missing isDeleted as active (older documents)
+  this.where({ isDeleted: { $ne: true } });
 });
 const SpaceModel = mongoose.model("Space", SpaceSchema);
 

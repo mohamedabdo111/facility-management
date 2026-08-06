@@ -1,3 +1,5 @@
+import crypto from "crypto";
+import mongoose from "mongoose";
 import expressAsyncHandler from "express-async-handler";
 import SpaceModel from "../sites/spaces/space.model.js";
 import SiteModel from "../sites/sites.model.js";
@@ -21,8 +23,31 @@ const toPublicSpace = (space, site) => ({
     : null,
 });
 
+/** Resolve by publicId, or by Mongo _id for older spaces missing publicId */
+const findSpaceByPublicParam = async (publicIdOrMongoId) => {
+  let space = await SpaceModel.findOne({ publicId: publicIdOrMongoId });
+
+  if (
+    !space &&
+    mongoose.Types.ObjectId.isValid(publicIdOrMongoId) &&
+    String(new mongoose.Types.ObjectId(publicIdOrMongoId)) ===
+      String(publicIdOrMongoId)
+  ) {
+    space = await SpaceModel.findById(publicIdOrMongoId);
+  }
+
+  if (!space) return null;
+
+  if (!space.publicId) {
+    space.publicId = crypto.randomUUID();
+    await space.save();
+  }
+
+  return space;
+};
+
 export const getPublicSpace = expressAsyncHandler(async (req, res) => {
-  const space = await SpaceModel.findOne({ publicId: req.params.publicId });
+  const space = await findSpaceByPublicParam(req.params.publicId);
   if (!space) {
     throw new ApiError(404, "Space not found");
   }
@@ -40,9 +65,7 @@ export const getPublicSpace = expressAsyncHandler(async (req, res) => {
 
 export const getPublicSpaceCategories = expressAsyncHandler(
   async (req, res) => {
-    const space = await SpaceModel.findOne({
-      publicId: req.params.publicId,
-    }).select("tenantId");
+    const space = await findSpaceByPublicParam(req.params.publicId);
     if (!space) {
       throw new ApiError(404, "Space not found");
     }
@@ -61,7 +84,7 @@ export const getPublicSpaceCategories = expressAsyncHandler(
 );
 
 export const createPublicReport = expressAsyncHandler(async (req, res) => {
-  const space = await SpaceModel.findOne({ publicId: req.params.publicId });
+  const space = await findSpaceByPublicParam(req.params.publicId);
   if (!space) {
     throw new ApiError(404, "Space not found");
   }
