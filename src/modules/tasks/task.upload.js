@@ -28,7 +28,7 @@ const imageProcessor = expressAsyncHandler(async (req, res, next) => {
   for (const [index, file] of req.files.entries()) {
     const fileName = `task-${Date.now()}-${index}.webp`;
     await sharp(file.buffer)
-      .toFormat("webp")
+      .webp({ quality: 60 })
       .toFile(`uploads/tasks/${fileName}`);
     images.push(`tasks/${fileName}`);
   }

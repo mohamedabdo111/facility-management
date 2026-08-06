@@ -24,7 +24,9 @@ const imageProcessor = expressAsyncHandler(async (req, res, next) => {
     return next(new ApiError(400, "No file uploaded"));
   }
   const fileName = `space-${Date.now()}.webp`;
-  await sharp(req.file.buffer).toFormat("webp").toFile(`uploads/spaces/${fileName}`);
+  await sharp(req.file.buffer)
+    .webp({ quality: 60 })
+    .toFile(`uploads/spaces/${fileName}`);
   req.body.image = `spaces/${fileName}`;
   next();
 });

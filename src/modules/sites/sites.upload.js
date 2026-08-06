@@ -25,7 +25,7 @@ const imageProcessor = expressAsyncHandler(async (req, res, next) => {
   }
   const fileName = `site-${Date.now()}.webp`;
   await sharp(req.file.buffer)
-    .toFormat("webp")
+    .webp({ quality: 60 })
     .toFile(`uploads/sites/${fileName}`);
   req.body.image = `sites/${fileName}`;
   next();
