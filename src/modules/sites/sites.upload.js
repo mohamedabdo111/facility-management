@@ -21,7 +21,7 @@ const upload = multer({
 
 const imageProcessor = expressAsyncHandler(async (req, res, next) => {
   if (!req.file) {
-    return next(new ApiError(400, "No file uploaded"));
+    return next();
   }
   const fileName = `site-${Date.now()}.webp`;
   await sharp(req.file.buffer)
