@@ -56,8 +56,7 @@ export const createTaskValidation = [
       });
     }),
   check("createdBy")
-    .notEmpty()
-    .withMessage("Created by is required")
+    .optional()
     .isMongoId()
     .withMessage("Invalid createdBy")
     .custom((value, { req }) => {

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 const opts = { toJSON: { virtuals: true } };
 
 const Schema = mongoose.Schema;
@@ -27,6 +28,15 @@ const SpaceSchema = new Schema(
     code: {
       type: String,
       required: [true, "Code is required"],
+    },
+
+    // Opaque id for QR / public scan links (not guessable like Mongo _id alone)
+    publicId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
+      default: () => crypto.randomUUID(),
     },
 
     tenantId: {

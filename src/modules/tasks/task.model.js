@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 
 const opts = { toJSON: { virtuals: true } };
 const Schema = mongoose.Schema;
@@ -58,12 +59,47 @@ const TaskSchema = new Schema(
 
     dueDate: Date,
     estimatedTime: Number,
+    // Images from the issue reporter (QR / create)
     images: [String],
+    // Images from technician after solving
+    completionImages: [String],
+    completionNotes: {
+      type: String,
+      default: null,
+    },
+    technicianName: {
+      type: String,
+      default: null,
+    },
+
+    // Token for public technician complete / view links
+    publicToken: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
+      default: () => crypto.randomUUID(),
+    },
+
+    source: {
+      type: String,
+      enum: ["internal", "public_qr"],
+      default: "internal",
+    },
+
+    reporterName: {
+      type: String,
+      default: null,
+    },
+    reporterContact: {
+      type: String,
+      default: null,
+    },
 
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      default: null,
     },
 
     startAt: Date,
@@ -99,6 +135,15 @@ TaskSchema.virtual("imagesUrls").get(function () {
     return [];
   }
   return this.images.map(
+    (image) => `${process.env.APP_URL}/uploads/${image}`,
+  );
+});
+
+TaskSchema.virtual("completionImagesUrls").get(function () {
+  if (!this.completionImages || this.completionImages.length === 0) {
+    return [];
+  }
+  return this.completionImages.map(
     (image) => `${process.env.APP_URL}/uploads/${image}`,
   );
 });
