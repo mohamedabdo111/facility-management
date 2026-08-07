@@ -2,6 +2,7 @@ import { body, check, param } from "express-validator";
 import { validationMiddleWare } from "../../middleware/validation.js";
 import SiteModel from "../sites/sites.model.js";
 import SpaceModel from "../sites/spaces/space.model.js";
+import AssetModel from "../sites/assets/asset.model.js";
 import CategoryModel from "../categories/category.model.js";
 import UserModel from "../users/user.model.js";
 import TaskModel from "./task.model.js";
@@ -37,6 +38,21 @@ export const createTaskValidation = [
       }).then((space) => {
         if (!space) {
           return Promise.reject("Space not found");
+        }
+      });
+    }),
+  check("assetId")
+    .optional({ values: "falsy" })
+    .isMongoId()
+    .withMessage("Invalid asset ID")
+    .custom((value, { req }) => {
+      return AssetModel.findOne({
+        _id: value,
+        tenantId: req.user.tenantId,
+        siteId: req.body.siteId,
+      }).then((asset) => {
+        if (!asset) {
+          return Promise.reject("Asset not found");
         }
       });
     }),

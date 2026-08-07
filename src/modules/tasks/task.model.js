@@ -30,6 +30,11 @@ const TaskSchema = new Schema(
       ref: "Space",
       required: true,
     },
+    assetId: {
+      type: Schema.Types.ObjectId,
+      ref: "Asset",
+      default: null,
+    },
     assignedTo: {
       type: Schema.Types.ObjectId,
       ref: "User",

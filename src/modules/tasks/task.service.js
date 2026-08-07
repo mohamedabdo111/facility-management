@@ -5,7 +5,7 @@ import ApiError from "../../utils/ApiErrors.js";
 
 
 export const createTask = expressAsyncHandler(async (req , res) => {
-    const { title, description, siteId, spaceId, assignedTo, category, priority, status, dueDate, estimatedTime, images, createdBy } = req.body;
+    const { title, description, siteId, spaceId, assetId, assignedTo, category, priority, status, dueDate, estimatedTime, images, createdBy } = req.body;
 
     const task = await TaskModel.create({
       title,
@@ -13,6 +13,7 @@ export const createTask = expressAsyncHandler(async (req , res) => {
       tenantId: req.user.tenantId,
       siteId,
       spaceId,
+      assetId: assetId || null,
       assignedTo,
       category,
       priority,

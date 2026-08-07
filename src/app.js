@@ -6,6 +6,7 @@ import tenantRouter from "./modules/tenants/tenant.route.js";
 import authRouter from "./modules/auth/auth.route.js";
 import siteRouter from "./modules/sites/sites.route.js";
 import spaceRouter from "./modules/sites/spaces/space.route.js";
+import assetRouter from "./modules/sites/assets/asset.route.js";
 import taskRouter from "./modules/tasks/task.route.js";
 import publicRouter from "./modules/public/public.route.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
@@ -26,6 +27,7 @@ app.use("/api/v1/sites", siteRouter);
 // Must be before /:siteId/spaces — otherwise "public" is treated as siteId
 app.use("/api/v1/public", publicRouter);
 app.use("/api/v1/:siteId/spaces", spaceRouter);
+app.use("/api/v1/:siteId/assets", assetRouter);
 app.use("/api/v1/tasks", taskRouter);
 app.use("/api/v1/categories", categoryRouter);
 
