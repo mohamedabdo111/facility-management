@@ -1,11 +1,7 @@
 import asyncHandler from "express-async-handler";
 import UserModel from "./user.model.js";
 import bcrypt from "bcrypt";
-import {
-  getAllMethod,
-  getOneMethod,
-  deleteMethod,
-} from "../../handler/handlerFactory.js";
+import { getAllMethod, getOneMethod, deleteMethod } from "../../handler/handlerFactory.js";
 
 const createUser = asyncHandler(async (req, res) => {
   const { name, email, password, role, image } = req.body;
@@ -16,12 +12,10 @@ const createUser = asyncHandler(async (req, res) => {
     email,
     password: hashedPassword,
     role,
-    image,
+
     tenantId: req.user.tenantId,
   });
-  res
-    .status(201)
-    .json({ message: "User created successfully", success: true, data: user });
+  res.status(201).json({ message: "User created successfully", success: true, data: user });
 });
 
 const getUsers = getAllMethod(UserModel, "users");
