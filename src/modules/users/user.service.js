@@ -12,7 +12,7 @@ const createUser = asyncHandler(async (req, res) => {
     email,
     password: hashedPassword,
     role,
-
+    image,
     tenantId: req.user.tenantId,
   });
   res.status(201).json({ message: "User created successfully", success: true, data: user });
