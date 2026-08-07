@@ -21,12 +21,10 @@ const upload = multer({
 
 const imageProcessor = expressAsyncHandler(async (req, res, next) => {
   if (!req.file) {
-    return next(new ApiError(400, "No file uploaded"));
+    next();
   }
   const fileName = `user-${Date.now()}.webp`;
-  await sharp(req.file.buffer)
-    .webp({ quality: 60 })
-    .toFile(`uploads/users/${fileName}`);
+  await sharp(req.file.buffer).webp({ quality: 60 }).toFile(`uploads/users/${fileName}`);
   req.body.image = `users/${fileName}`;
   next();
 });
