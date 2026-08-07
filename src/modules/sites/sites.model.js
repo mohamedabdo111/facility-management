@@ -78,6 +78,6 @@ SiteSchema.virtual("imageUrl").get(function () {
 //   this.where({ isDeleted: false, deletedAt: null });
 // });
 
-const SiteModel = model("Sites", SiteSchema);
+const SiteModel = model("Site", SiteSchema);
 
 export default SiteModel;
